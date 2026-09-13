@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="ManoYug AI">
+  <rect width="512" height="512" rx="96" fill="#2f5d50"/>
+  <circle cx="256" cy="220" r="88" fill="#f7f5f1"/>
+  <path d="M120 420c32-72 96-108 136-108s104 36 136 108" fill="#e4efe9"/>
+</svg>

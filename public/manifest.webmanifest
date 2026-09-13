@@ -1,0 +1,18 @@
+{
+  "name": "ManoYug AI",
+  "short_name": "ManoYug",
+  "description": "Institutional student wellbeing companion with safety-first AI and human support.",
+  "start_url": "/student",
+  "display": "standalone",
+  "background_color": "#f7f5f1",
+  "theme_color": "#2f5d50",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

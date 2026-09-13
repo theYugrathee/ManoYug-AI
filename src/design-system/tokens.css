@@ -1,0 +1,69 @@
+/**
+ * ManoYug AI — Light Startup Design Tokens (Clean, Trustworthy, Clinical Authority)
+ * Palette: Crisp white + warm slate + deep charcoal + refined emerald & ocean accents
+ */
+
+:root {
+  /* ─── Background Foundation ─── */
+  --my-bg: #FFFFFF;
+  --my-bg-elevated: #FFFFFF;
+  --my-bg-panel: #F8FAFC;
+  --my-bg-subtle: #F1F5F9;
+
+  /* ─── Foreground & Typography ─── */
+  --my-fg: #0F172A;
+  --my-fg-muted: #64748B;
+  --my-fg-subtle: #94A3B8;
+
+  /* ─── Primary Brand Accent: Deep Midnight Obsidian / Crisp Emerald ─── */
+  --my-brand: #0F172A;
+  --my-brand-hover: #1E293B;
+  --my-brand-subtle: rgba(15, 23, 42, 0.05);
+  --my-brand-fg: #FFFFFF;
+
+  /* ─── Secondary / Hero Accent: Clinical Emerald & Ocean ─── */
+  --my-accent: #059669;
+  --my-accent-hover: #047857;
+  --my-accent-subtle: rgba(5, 150, 105, 0.08);
+
+  /* ─── Linework & Structural Borders ─── */
+  --my-border: #E2E8F0;
+  --my-border-strong: #CBD5E1;
+  --my-ring: #0F172A;
+
+  /* ─── Semantic Indicators ─── */
+  --my-success: #10B981;
+  --my-success-bg: #ECFDF5;
+  --my-warning: #D97706;
+  --my-warning-bg: #FFFBEB;
+  --my-danger: #E11D48;
+  --my-danger-bg: #FFF1F2;
+  --my-info: #0284C7;
+  --my-info-bg: #EFF6FF;
+
+  /* ─── Radii ─── */
+  --my-radius-sm: 6px;
+  --my-radius-md: 10px;
+  --my-radius-lg: 14px;
+  --my-radius-xl: 20px;
+  --my-radius-full: 9999px;
+
+  /* ─── Shadows: Clean Diffuse Startup Depth ─── */
+  --my-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --my-shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --my-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04);
+  --my-glow: 0 4px 20px rgba(15, 23, 42, 0.08);
+  --my-glow-strong: 0 8px 30px rgba(15, 23, 42, 0.12);
+
+  /* ─── Transitions ─── */
+  --my-duration-fast: 150ms;
+  --my-duration: 200ms;
+  --my-duration-slow: 350ms;
+  --my-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ─── Layout Dimensions ─── */
+  --my-sidebar-w: 260px;
+  --my-z-sidebar: 30;
+  --my-z-overlay: 40;
+  --my-z-modal: 50;
+}
