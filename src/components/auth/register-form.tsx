@@ -139,7 +139,7 @@ export function RegisterForm() {
       </Field>
 
       <Button type="submit" loading={pending} className="w-full mt-2">
-        {pending ? "Creating account…" : "Continue to email verification"}
+        {pending ? "Creating account…" : "Create student account"}
       </Button>
     </form>
   );

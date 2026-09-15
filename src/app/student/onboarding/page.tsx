@@ -14,7 +14,7 @@ export default function OnboardingPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-background">
       <div className="w-full max-w-md my-fade-in-up">
-        {/* Header styling mimics the Verify OTP page */}
+        {/* Keep onboarding visually consistent with the auth flow. */}
         <div className="text-center mb-8">
           <div className="flex h-12 w-12 mx-auto items-center justify-center rounded-2xl bg-brand text-[var(--my-brand-fg)] font-bold mb-6 shadow-[var(--my-glow)]">M</div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">

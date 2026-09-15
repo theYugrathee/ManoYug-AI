@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-09-08  
 **Code completion:** ~95% of blueprint product surfaces (application code)  
-**Live production:** requires your Supabase / ZeptoMail SMTP / Gemini keys + counsel legal sign-off
+**Live production:** requires your Supabase / Gemini keys + counsel legal sign-off; ZeptoMail SMTP is optional until email OTP is enabled
 
 ## Complete in-repo
 
@@ -14,8 +14,8 @@ requests, feedback, PWA, security headers, providers, migrations, unit + e2e smo
 
 1. Apply `supabase/migrations/*`  
 2. Fill `.env.local`  
-3. Enable Auth OTP (+ MFA in dashboard)  
-4. Optional Gemini / ZeptoMail SMTP / Sentry
+3. Enable Auth OTP and configure ZeptoMail SMTP later when a verified sending domain is available
+4. Optional Gemini / Sentry
 5. Counsel review of legal placeholders  
 
 ## Preview

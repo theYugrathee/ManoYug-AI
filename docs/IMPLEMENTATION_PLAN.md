@@ -6,6 +6,8 @@
 **Plan date:** 2026-09-08  
 **Status:** Phase 0 complete → Phase 1 scaffold in progress
 
+> **Current deployment note:** Student registration currently skips email OTP because no verified sending domain is configured. Account creation still requires an active institute code and an exact approved student email match, enforced server-side before the Supabase account is created. OTP/ZeptoMail can be enabled later without changing that eligibility rule.
+
 ---
 
 ## 0. Repository audit (Phase 0 findings)

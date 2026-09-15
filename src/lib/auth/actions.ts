@@ -112,9 +112,9 @@ export async function registerStudentAction(
       const { data: created, error: createError } = await admin.auth.admin.createUser({
         email: data.email,
         password: data.password,
-        // Keep the account unconfirmed until the student enters the OTP sent
-        // by Supabase Auth through the configured ZeptoMail SMTP connection.
-        email_confirm: false,
+        // OTP delivery is intentionally disabled until a verified sending
+        // domain is available. Eligibility is still enforced server-side.
+        email_confirm: true,
         user_metadata: { full_name: data.fullName, phone: data.phone },
       });
       let userId = created.user?.id;
@@ -148,7 +148,7 @@ export async function registerStudentAction(
         // refresh profile metadata, but preserve the password the user chose.
         userId = existing.id;
         await admin.auth.admin.updateUserById(userId, {
-          email_confirm: false,
+          email_confirm: true,
           user_metadata: { full_name: data.fullName, phone: data.phone },
         });
       }
@@ -175,23 +175,13 @@ export async function registerStudentAction(
         return { ok: false, code: "REGISTRATION_FAILED", message: "We could not finish linking your account to the institution. Please try again." };
       }
       const supabase = await createClient();
-      const { error: otpError } = await supabase.auth.resend({
-        type: "signup",
-        email: data.email,
-      });
-      if (otpError) {
-        console.error("[auth.register.otp]", otpError.message);
-        if (createdNewUser) {
-          await admin.from("institution_students").update({ linked_user_id: null }).eq("id", eligible.id).eq("linked_user_id", userId);
-          await admin.auth.admin.deleteUser(userId);
-        }
-        return { ok: false, code: "REGISTRATION_FAILED", message: "We could not send the verification code. Please try again." };
-      }
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
+      if (signInError) return { ok: false, code: "LOGIN_FAILED", message: "Account created. Please sign in with your new credentials." };
       return {
         ok: true,
         code: "REGISTERED",
-        message: `Account created for ${institution.name}. Check your email for the verification code.`,
-        redirectTo: `/verify-otp?email=${encodeURIComponent(data.email)}`,
+        message: `Account created and verified for ${institution.name}.`,
+        redirectTo: "/student/onboarding",
       };
     } catch (error) {
       console.error("[auth.register.persistence]", error);

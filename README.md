@@ -107,7 +107,7 @@ The `/super-admin` routes cover institution requests, tenants, pricing, feature 
 2. The student enters an active institute code, email, name, phone, graduation year, optional roll number, and password.
 3. Server-side checks match the exact active institution and approved email. Frontend state, URL changes, or forged payloads cannot bypass this.
 4. Supabase Auth, profile, membership, student profile, and roster link are reconciled.
-5. Email verification is completed through Supabase Auth.
+5. Email OTP is currently deferred until a verified sending domain is available; eligible students are signed in after server-side roster validation.
 
 Repeated registration returns an account-exists/sign-in path. Roll number is optional; email is the required eligibility match.
 
@@ -202,7 +202,7 @@ Users must provide accurate information, protect credentials, use the service la
 | UI | Tailwind CSS 4, design tokens, responsive motion/canvas components |
 | Auth/data | Supabase Auth, PostgreSQL, migrations, RLS |
 | AI | Gateway with Gemini and labelled mock provider |
-| Email | Supabase Auth custom SMTP through ZeptoMail for OTP delivery |
+| Email | Optional ZeptoMail integration for future transactional/OTP delivery |
 | Validation | Zod and server-side authorization |
 | Tests | Vitest and Playwright |
 | Deployment | Vercel-compatible Next.js host plus Supabase |
@@ -234,11 +234,11 @@ AI_PROVIDER=auto
 EMAIL_PROVIDER=auto
 ```
 
-The service-role key must remain server-only and must never be imported into client code or committed to GitHub. OTP delivery is configured in Supabase Auth using ZeptoMail custom SMTP; it is not sent by the app's optional transactional provider abstraction.
+The service-role key must remain server-only and must never be imported into client code or committed to GitHub. Email OTP is intentionally deferred until a verified sending domain is available. Student eligibility is still checked server-side against the active institution code and approved email roster before account creation.
 
 ## Supabase deployment
 
-Apply every file in `supabase/migrations/` to the same project, in filename order. Do not apply only the latest migration to a blank project. Recent migrations add durable support requests, feedback, deletion requests, super-admin governance, institution-request provisioning, and email-first student eligibility with optional roll number. Configure ZeptoMail as Supabase Auth's custom SMTP provider for production OTP delivery.
+Apply every file in `supabase/migrations/` to the same project, in filename order. Do not apply only the latest migration to a blank project. Recent migrations add durable support requests, feedback, deletion requests, super-admin governance, institution-request provisioning, and email-first student eligibility with optional roll number. Configure ZeptoMail later if you enable email OTP or other outbound transactional mail.
 
 After migration, verify institution requests, approval, roster registration, rejection of outside students, check-ins, exercises, support requests, appointments, feedback, deletion, safety inbox events, and cross-tenant isolation.
 
@@ -289,7 +289,7 @@ docs/                    Architecture, safety, security, deployment guides
 
 ## Limitations and roadmap
 
-Before a public production launch, apply and verify migrations, complete DPDP/legal/consent review, validate helplines and campus contacts, configure outbound email if required, replace in-process rate limits, test OTP/MFA/password recovery/deletion end to end, complete security and clinical-safety review, and define staffed escalation SLAs, backups, retention, and disaster recovery.
+Before a public production launch, apply and verify migrations, complete DPDP/legal/consent review, validate helplines and campus contacts, configure outbound email if required, replace in-process rate limits, test password recovery/deletion end to end (and OTP/MFA when enabled), complete security and clinical-safety review, and define staffed escalation SLAs, backups, retention, and disaster recovery.
 
 Planned improvements include distributed rate limiting, institution-configurable on-call routing, verified email/SMS delivery, richer counsellor case management, expanded language coverage, accessibility hardening, CI safety regression gates, formal retention automation, and deeper institution integrations.
 

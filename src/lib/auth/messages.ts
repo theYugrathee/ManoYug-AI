@@ -3,7 +3,7 @@
  */
 export const AUTH_SAFE_MESSAGES = {
   registrationAccepted:
-    "If your details can be verified, we sent a one-time code to your email. Enter it on the next screen to continue.",
+    "Your eligibility was verified and your account is ready. Continue to your student space.",
   registrationValidation: "Please correct the highlighted fields and try again.",
   authNotConfigured:
     "Sign-in is unavailable until the authentication service is configured. Ask your platform administrator to set Supabase environment variables.",
@@ -18,7 +18,7 @@ export const AUTH_SAFE_MESSAGES = {
   eligibilityLinked:
     "Your account is verified and linked to your institution. You can continue to your student space.",
   accountExistsSafe:
-    "If an account already exists for this email, sign in instead. If you just registered, check your email for a verification code.",
+    "If an account already exists for this email, sign in instead.",
   rateLimited: "Too many attempts. Wait a few minutes and try again.",
 } as const;
 

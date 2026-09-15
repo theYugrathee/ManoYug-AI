@@ -3,6 +3,104 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+/**
+ * Keep the landing hero animated when a desktop browser blocks WebGL (a
+ * surprisingly common laptop power/driver setting). This is intentionally
+ * canvas-only and decorative; the full Three.js scene is still used whenever
+ * WebGL is available.
+ */
+function startCanvasFallback(container: HTMLDivElement, reducedMotion: boolean) {
+  const canvas = document.createElement("canvas");
+  canvas.className = "pointer-events-none absolute inset-0 h-full w-full";
+  canvas.setAttribute("aria-hidden", "true");
+  container.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    canvas.remove();
+    return () => undefined;
+  }
+
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+  let animationFrameId = 0;
+  let elapsed = 0;
+  let previousTime = performance.now();
+
+  const resize = () => {
+    width = container.clientWidth || window.innerWidth;
+    height = container.clientHeight || window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.floor(width * dpr));
+    canvas.height = Math.max(1, Math.floor(height * dpr));
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  const render = (now: number) => {
+    const delta = Math.min(40, now - previousTime);
+    previousTime = now;
+    if (!reducedMotion) elapsed += delta * 0.001;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const columns = Math.max(20, Math.min(56, Math.floor(width / 28)));
+    const rows = Math.max(12, Math.min(30, Math.floor(height / 30)));
+    const xStep = width / (columns + 1);
+    const yStep = Math.max(18, height / (rows + 2));
+    const horizon = height * 0.55;
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        const x = (column + 1) * xStep;
+        const distance = Math.abs(x - width / 2) / Math.max(width / 2, 1);
+        const wave = Math.sin(elapsed * 1.15 + column * 0.22 + row * 0.16) * (8 + (1 - distance) * 8);
+        const y = horizon + (row - rows / 2) * yStep * 0.72 + wave;
+        const alpha = Math.max(0.06, 0.3 - distance * 0.18 - row * 0.004);
+        const radius = row < rows * 0.45 ? 1.7 : 1.15;
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 2.8, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(13, 148, 136, ${alpha * 0.14})`;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = row % 3 === 0 ? `rgba(5, 150, 105, ${alpha})` : `rgba(13, 148, 136, ${alpha})`;
+        ctx.fill();
+      }
+    }
+
+    for (let index = 0; index < 12; index += 1) {
+      const phase = index * 1.7;
+      const x = width * (0.08 + (index % 6) * 0.17) + Math.sin(elapsed * 0.3 + phase) * 18;
+      const y = height * (0.16 + Math.floor(index / 6) * 0.2) + Math.cos(elapsed * 0.45 + phase) * 14;
+      const radius = 2 + (index % 3);
+      ctx.beginPath();
+      ctx.arc(x, y, radius * 4, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(5, 150, 105, 0.035)";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(13, 148, 136, 0.22)";
+      ctx.fill();
+    }
+
+    animationFrameId = requestAnimationFrame(render);
+  };
+
+  resize();
+  window.addEventListener("resize", resize, { passive: true });
+  animationFrameId = requestAnimationFrame(render);
+
+  return () => {
+    cancelAnimationFrame(animationFrameId);
+    window.removeEventListener("resize", resize);
+    canvas.remove();
+  };
+}
+
 export function HeroNetworkCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -26,11 +124,17 @@ export function HeroNetworkCanvas() {
     camera.position.set(0, isMobile ? 12 : 18, isMobile ? 130 : 110);
 
     // ─── 2. WebGL Renderer ───
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance",
-    });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+      });
+    } catch (error) {
+      console.warn("[landing.hero] WebGL unavailable; using 2D animation fallback.", error);
+      return startCanvasFallback(container, prefersReducedMotion);
+    }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
     renderer.setClearColor(0xffffff, 0);

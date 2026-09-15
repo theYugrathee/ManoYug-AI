@@ -11,7 +11,9 @@ type LinkResult =
   | { linked: false; reason: "not_configured" | "no_match" | "db_error" };
 
 /**
- * After email OTP success: match roster and create STUDENT membership.
+ * After authenticated registration: match the approved roster and create the
+ * STUDENT membership. Email eligibility is checked before account creation in
+ * the production registration action as well.
  * Uses service role (roster is admin-only under RLS). Fail closed; never leak why.
  */
 export async function linkStudentEligibility(params: {
