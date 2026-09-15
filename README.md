@@ -251,6 +251,19 @@ create trigger data_deletion_requests_updated_at
   for each row execute function public.set_updated_at();
 ```
 
+## ZeptoMail domain verification
+
+These DNS records must be created at the DNS provider that manages the sending domain. They cannot be added to GitHub; GitHub only stores the documentation below. If your DNS provider automatically appends the domain name, enter only the host shown in the **Host/Name** column.
+
+| Type | Host/Name | Value |
+|---|---|---|
+| TXT | `159238._domainkey` | `k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvZYwMtwHjHq5DfY41epwIXlrrviOLO7iU48vyHsPsEl3sox4rlu8Rruqu0FhSg9InFNz75M2l+129QVRo+zS8jGRbYowWtGTpYw4lURm5x0i+Rvr3VqkzOAVVf5CcQijunphR8x18S6gVS76P32pSIGvEDN+pRsrPgfc+yijtQtZQ4SwjWEHjjuZBlEfMepe9SvLcIcz+dWh3LjOnHsyJyu5ce/IAM7oHPwllp7t/WeWdimGwAZ7vbkKGH5e6/MzMJWOMZsO3PrNN7tdh4K0m3dAgJE2KFmufkgTrLKLOsG5yzSYemeEZ1Z+iNqMWMP+tAvoN3O+VCkrO+AhkcURCQIDAQAB` |
+| CNAME | `bounce-zem` | `cluster89.zeptomail.in` |
+
+After adding the records, return to ZeptoMail and select **Verify**. DNS propagation can take time. For Cloudflare, keep the CNAME set to **DNS only** rather than proxied. Do not add quotation marks around the TXT value unless your DNS provider adds them automatically. Add any additional SPF/DMARC records ZeptoMail displays for your domain.
+
+Once the domain is verified, configure Supabase Auth → Email → Custom SMTP with the SMTP host, port, username, API token, and verified From address shown in your ZeptoMail account. The app uses Supabase Auth for OTP delivery; it does not send Auth OTPs through a separate Resend integration.
+
 ## Testing
 
 ```bash
