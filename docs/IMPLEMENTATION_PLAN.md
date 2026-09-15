@@ -48,7 +48,7 @@
 └──────────────────────────┘              │
                               ┌───────────▼───────────────────────┐
                               │  Gemini (prod) / Mock (dev)        │
-                              │  Resend or SMTP (email)            │
+                              │  ZeptoMail SMTP (email OTP)        │
                               └───────────────────────────────────┘
 ```
 
@@ -75,7 +75,7 @@
 | DB | PostgreSQL via Supabase | RLS, Auth, Storage in one ops surface |
 | Auth | Supabase Auth + email OTP | Matches mandatory OTP; MFA for elevated roles later |
 | AI | Gemini via `AIProvider` interface | Spec-mandated; swappable |
-| Email | Resend (or Nodemailer mock in dev) | Transactional OTP / reminders |
+| Email | ZeptoMail via Supabase custom SMTP | Transactional OTP delivery |
 | Hosting | Vercel | Preview + prod envs |
 | Validation | Zod | Shared client/server schemas |
 | Tests | Vitest + Playwright + RLS SQL tests | Unit/integration/E2E/security |
@@ -329,7 +329,7 @@ LLM is **not** the safety authority. Model cannot override structured safety sta
 
 ## 17. Dependencies (initial)
 
-**Runtime:** next, react, @supabase/supabase-js, @supabase/ssr, zod, next-intl, @google/generative-ai (or fetch wrapper), resend  
+**Runtime:** next, react, @supabase/supabase-js, @supabase/ssr, zod, next-intl, @google/generative-ai (or fetch wrapper); OTP delivery via Supabase custom SMTP and ZeptoMail
 
 **UI:** tailwindcss, class-variance-authority, clsx, radix-ui primitives, lucide-react (sparingly)  
 
@@ -354,7 +354,7 @@ LLM is **not** the safety authority. Model cannot override structured safety sta
 
 | Topic | Interim decision | When to revisit |
 |-------|------------------|-----------------|
-| Exact OTP provider vs Supabase native | Supabase Auth email OTP | If deliverability fails → Resend custom |
+| Exact OTP provider vs Supabase native | Supabase Auth email OTP + ZeptoMail SMTP | If deliverability fails, inspect ZeptoMail/Supabase delivery logs |
 | Worker/queue (Inngest vs cron) | Start with Vercel cron + DB jobs | When async volume grows |
 | Embedding store for RAG | pgvector on Supabase | After knowledge volume > trivial |
 | MFA vendor | Supabase TOTP | Before production staff rollout |

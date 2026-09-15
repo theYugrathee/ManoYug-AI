@@ -112,7 +112,9 @@ export async function registerStudentAction(
       const { data: created, error: createError } = await admin.auth.admin.createUser({
         email: data.email,
         password: data.password,
-        email_confirm: true,
+        // Keep the account unconfirmed until the student enters the OTP sent
+        // by Supabase Auth through the configured ZeptoMail SMTP connection.
+        email_confirm: false,
         user_metadata: { full_name: data.fullName, phone: data.phone },
       });
       let userId = created.user?.id;
@@ -146,7 +148,7 @@ export async function registerStudentAction(
         // refresh profile metadata, but preserve the password the user chose.
         userId = existing.id;
         await admin.auth.admin.updateUserById(userId, {
-          email_confirm: true,
+          email_confirm: false,
           user_metadata: { full_name: data.fullName, phone: data.phone },
         });
       }
@@ -173,9 +175,24 @@ export async function registerStudentAction(
         return { ok: false, code: "REGISTRATION_FAILED", message: "We could not finish linking your account to the institution. Please try again." };
       }
       const supabase = await createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
-      if (signInError) return { ok: false, code: "LOGIN_FAILED", message: "Account created. Please sign in with your new credentials." };
-      return { ok: true, code: "REGISTERED", message: `Account created and verified for ${institution.name}.`, redirectTo: "/student/onboarding" };
+      const { error: otpError } = await supabase.auth.resend({
+        type: "signup",
+        email: data.email,
+      });
+      if (otpError) {
+        console.error("[auth.register.otp]", otpError.message);
+        if (createdNewUser) {
+          await admin.from("institution_students").update({ linked_user_id: null }).eq("id", eligible.id).eq("linked_user_id", userId);
+          await admin.auth.admin.deleteUser(userId);
+        }
+        return { ok: false, code: "REGISTRATION_FAILED", message: "We could not send the verification code. Please try again." };
+      }
+      return {
+        ok: true,
+        code: "REGISTERED",
+        message: `Account created for ${institution.name}. Check your email for the verification code.`,
+        redirectTo: `/verify-otp?email=${encodeURIComponent(data.email)}`,
+      };
     } catch (error) {
       console.error("[auth.register.persistence]", error);
       return { ok: false, code: "REGISTRATION_FAILED", message: "We could not create your account. Please try again." };
@@ -1029,11 +1046,56 @@ export async function resendOtpAction(
   _prev: AuthActionResult | null,
   formData: FormData,
 ): Promise<AuthActionResult> {
-  return {
-    ok: true,
-    code: "OTP_RESENT",
-    message: AUTH_SAFE_MESSAGES.otpResent,
-  };
+  const parsed = resendOtpSchema.safeParse({
+    email: formString(formData, "email"),
+  });
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      code: "VALIDATION_ERROR",
+      message: AUTH_SAFE_MESSAGES.otpInvalid,
+      fieldErrors: flattenZodErrors(parsed.error),
+    };
+  }
+
+  if (!isSupabaseConfigured()) {
+    return {
+      ok: true,
+      code: "OTP_RESENT",
+      message: "Mock verification code resent.",
+    };
+  }
+
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: parsed.data.email,
+    });
+
+    if (error) {
+      console.error("[auth.resendOtp]", error.message);
+      return {
+        ok: false,
+        code: "OTP_INVALID",
+        message: "We could not resend the code. Please wait a moment and try again.",
+      };
+    }
+
+    return {
+      ok: true,
+      code: "OTP_RESENT",
+      message: AUTH_SAFE_MESSAGES.otpResent,
+    };
+  } catch (err) {
+    console.error("[auth.resendOtp] unexpected", err);
+    return {
+      ok: false,
+      code: "OTP_INVALID",
+      message: "We could not resend the code. Please wait a moment and try again.",
+    };
+  }
 }
 
 /** Used after successful client redirect handling */

@@ -23,7 +23,7 @@ export default async function VerifyOtpPage({
             Verify your student profile
           </h2>
           <p className="mt-2 text-xs text-[#64748B] leading-relaxed">
-            Enter the code sent to your email, or proceed directly to your campus sanctuary.
+            Enter the verification code sent to your approved student email to continue.
           </p>
         </div>
 
@@ -38,14 +38,6 @@ export default async function VerifyOtpPage({
         ) : (
           <div className="space-y-4">
             <OtpForm email={email} />
-            <div className="pt-2 border-t border-[#E2E8F0]">
-              <Link
-                href="/student"
-                className="w-full inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 transition-all shadow-xs"
-              >
-                Skip OTP & Enter Student Sanctuary →
-              </Link>
-            </div>
           </div>
         )}
 
